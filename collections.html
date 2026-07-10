@@ -16,6 +16,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     color: #111;
     padding: 20px;
   }
+          .header {
+  padding: 60px;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 30px;
+}
 
   .back-btn {
     display: inline-block;
@@ -156,10 +163,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <body>
 
+ <div class="header">
+   
 <a class="back-btn" href="index.html">◂ Back</a>
-
-<h1>Your Collections</h1>
-<div class="subtitle">Tap to activate. Only your device’s collections are shown.</div>
+   <h1>Your Collections.</h1>
+    <div class="subtitle">Tap to use. (you can use more than one at once)</div>
+    </div>
 
 <div class="collections-list" id="collections-list"></div>
 
@@ -200,6 +209,38 @@ const db = getDatabase(app,
 const collectionsRef = ref(db, "collections/" + deviceId);
 const activeRef = ref(db, "activeCollections/" + deviceId);
 const cardsRef = ref(db, "cards/" + deviceId);
+
+/* MIGRATION: move old collections into device folder */
+const globalCollectionsRef = ref(db, "collections");
+const globalCardsRef = ref(db, "cards");
+
+onValue(globalCollectionsRef, snap => {
+  const all = snap.val() || {};
+
+  onValue(collectionsRef, snap2 => {
+    const mine = snap2.val() || {};
+
+    if (Object.keys(mine).length === 0 && Object.keys(all).length > 0) {
+      Object.entries(all).forEach(([id, col]) => {
+        set(ref(db, "collections/" + deviceId + "/" + id), col);
+      });
+    }
+  });
+});
+
+onValue(globalCardsRef, snap => {
+  const all = snap.val() || {};
+
+  onValue(cardsRef, snap2 => {
+    const mine = snap2.val() || {};
+
+    if (Object.keys(mine).length === 0 && Object.keys(all).length > 0) {
+      Object.entries(all).forEach(([id, card]) => {
+        set(ref(db, "cards/" + deviceId + "/" + id), card);
+      });
+    }
+  });
+});
 
 /* Elements */
 const listEl = document.getElementById("collections-list");

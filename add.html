@@ -25,6 +25,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     color: #fff;
     text-decoration: none;
     margin-bottom: 20px;
+    font-size: 0.95rem;
   }
 
   .card {
@@ -33,6 +34,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     border: 1px solid #e5e5e5;
     padding: 20px;
     border-radius: 16px;
+    background: #fff;
+  }
+
+  h2 {
+    margin-bottom: 16px;
+  }
+
+  label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    display: block;
   }
 
   input, select {
@@ -40,7 +52,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     font-size: 1rem;
   }
 
@@ -52,6 +64,10 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     color: #fff;
     cursor: pointer;
     font-size: 1rem;
+  }
+
+  button:hover {
+    filter: brightness(1.05);
   }
 </style>
 </head>
@@ -82,6 +98,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, push, set, onValue }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+/* DEVICE ID */
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = "dev_" + Math.random().toString(36).substring(2);
+  localStorage.setItem("deviceId", deviceId);
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
   authDomain: "flashcards-c5a5d.firebaseapp.com",
@@ -97,14 +120,18 @@ const db = getDatabase(app,
  "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
 );
 
-const collectionsRef = ref(db, "collections");
-const cardsRef = ref(db, "cards");
+/* Correct device‑scoped refs */
+const collectionsRef = ref(db, "collections/" + deviceId);
+const cardsRef = ref(db, "cards/" + deviceId);
 
+/* Elements */
 const select = document.getElementById("collection-select");
 
+/* Load only this device's collections */
 onValue(collectionsRef, snap => {
   const data = snap.val() || {};
   select.innerHTML = "";
+
   Object.entries(data).forEach(([id, col]) => {
     const opt = document.createElement("option");
     opt.value = id;
@@ -137,4 +164,3 @@ document.getElementById("add-card-form").onsubmit = e => {
 
 </body>
 </html>
-

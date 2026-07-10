@@ -29,23 +29,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   }
 
   h1 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
 
-  .card {
-    max-width: 700px;
-    margin: 0 auto;
-    border: 1px solid #e5e5e5;
-    padding: 20px;
-    border-radius: 16px;
-    background: #fff;
+  .subtitle {
+    color: #666;
+    margin-bottom: 20px;
   }
 
   .collections-list {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 10px;
+    margin-bottom: 20px;
   }
 
   .collection-pill {
@@ -69,7 +65,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   }
 
   .new-btn {
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 10px 16px;
     border-radius: 999px;
     background: rgb(177,151,252);
@@ -79,10 +75,81 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     font-size: 1rem;
   }
 
-  .active-text {
-    margin-top: 14px;
-    font-size: 0.9rem;
-    color: #555;
+  .active-name {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* Flashcard grid */
+  .cards-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .card-box {
+    background: #f4edff;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(177,151,252,0.4);
+    cursor: pointer;
+    position: relative;
+    transition: 0.15s;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .card-box:hover {
+    background: #ece2ff;
+  }
+
+  .card-box.flipped {
+    background: #e8ddff;
+  }
+
+  .card-box .dumpster {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+
+  .card-box.edit-mode {
+    transform: scale(1.05);
+    background: #e2d4ff;
+  }
+
+  .edit-btn {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  /* Add new card box */
+  .add-card-box {
+    border: 2px dotted rgba(177,151,252,0.6);
+    background: #faf7ff;
+    border-radius: 12px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: rgb(177,151,252);
+    transition: 0.15s;
+  }
+
+  .add-card-box:hover {
+    background: #f2eaff;
   }
 </style>
 </head>
@@ -92,23 +159,27 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <a class="back-btn" href="index.html">◂ Back</a>
 
 <h1>Your Collections</h1>
+<div class="subtitle">Tap to activate. Only your device’s collections are shown.</div>
 
-<div class="card">
-  <h2 style="margin-bottom:10px;">Tap to activate or deactivate</h2>
+<div class="collections-list" id="collections-list"></div>
 
-  <div class="collections-list" id="collections-list"></div>
+<button class="new-btn" id="new-collection-btn">New Collection</button>
 
-  <div class="active-text">
-    Active collections: <span id="active-collections-text">none</span>
-  </div>
+<div class="active-name" id="active-name"></div>
 
-  <button class="new-btn" id="new-collection-btn">New Collection</button>
-</div>
+<div class="cards-grid" id="cards-grid"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set, update, onValue }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* DEVICE ID */
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = "dev_" + Math.random().toString(36).substring(2);
+  localStorage.setItem("deviceId", deviceId);
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
@@ -125,34 +196,30 @@ const db = getDatabase(app,
  "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
 );
 
-const collectionsRef = ref(db, "collections");
-const activeRef = ref(db, "activeCollections");
+/* DB refs */
+const collectionsRef = ref(db, "collections/" + deviceId);
+const activeRef = ref(db, "activeCollections/" + deviceId);
+const cardsRef = ref(db, "cards/" + deviceId);
 
+/* Elements */
 const listEl = document.getElementById("collections-list");
-const activeTextEl = document.getElementById("active-collections-text");
 const newBtn = document.getElementById("new-collection-btn");
+const activeNameEl = document.getElementById("active-name");
+const cardsGridEl = document.getElementById("cards-grid");
 
 let collections = {};
 let active = {};
+let cards = {};
 
-function render() {
+function renderCollections() {
   listEl.innerHTML = "";
 
-  const ids = Object.keys(collections);
-  if (ids.length === 0) {
-    activeTextEl.textContent = "none";
-    return;
-  }
-
-  ids.forEach(id => {
-    const col = collections[id];
-    const name = col.name || "Untitled";
-
+  Object.entries(collections).forEach(([id, col]) => {
     const pill = document.createElement("button");
     pill.className = "collection-pill";
-    pill.textContent = name;
+    pill.textContent = col.name;
 
-    const isActive = !!active[id];
+    const isActive = active[id];
     if (isActive) pill.classList.add("active");
 
     pill.onclick = () => {
@@ -162,22 +229,107 @@ function render() {
     listEl.appendChild(pill);
   });
 
-  const activeIds = Object.keys(active).filter(id => active[id]);
-  activeTextEl.textContent = activeIds.length ? activeIds.join(", ") : "none";
+  renderActiveCollection();
 }
 
+function renderActiveCollection() {
+  const activeIds = Object.keys(active).filter(id => active[id]);
+
+  if (activeIds.length === 0) {
+    activeNameEl.textContent = "";
+    cardsGridEl.innerHTML = "";
+    return;
+  }
+
+  const id = activeIds[0];
+  const col = collections[id];
+
+  activeNameEl.textContent = col.name;
+
+  const colCards = Object.entries(cards)
+    .filter(([cid, c]) => c.collectionId === id);
+
+  cardsGridEl.innerHTML = "";
+
+  colCards.forEach(([cid, c]) => {
+    const box = document.createElement("div");
+    box.className = "card-box";
+    box.textContent = c.front;
+
+    const dumpster = document.createElement("div");
+    dumpster.className = "dumpster";
+    dumpster.innerHTML =
+      `<i class="fa-solid fa-dumpster" style="color: rgb(177,151,252);"></i>`;
+    box.appendChild(dumpster);
+
+    let flipped = false;
+    let editMode = false;
+
+    box.onclick = () => {
+      if (editMode) return;
+      flipped = !flipped;
+      box.classList.toggle("flipped");
+      box.textContent = flipped ? c.back : c.front;
+      box.appendChild(dumpster);
+    };
+
+    dumpster.onclick = (e) => {
+      e.stopPropagation();
+      editMode = true;
+      box.classList.add("edit-mode");
+
+      const editBtn = document.createElement("div");
+      editBtn.className = "edit-btn";
+      editBtn.innerHTML =
+        `<i class="fa-solid fa-pencil" style="color: rgb(177,151,252);"></i>`;
+      box.appendChild(editBtn);
+
+      editBtn.onclick = (ev) => {
+        ev.stopPropagation();
+        const newFront = prompt("New front:", c.front);
+        const newBack = prompt("New back:", c.back);
+        if (!newFront || !newBack) return;
+
+        update(ref(db, "cards/" + deviceId + "/" + cid), {
+          front: newFront,
+          back: newBack
+        });
+      };
+    };
+
+    cardsGridEl.appendChild(box);
+  });
+
+  /* Add new card box */
+  const addBox = document.createElement("div");
+  addBox.className = "add-card-box";
+  addBox.innerHTML = `<i class="fa-solid fa-plus"></i>`;
+  addBox.onclick = () => {
+    window.location = "add.html";
+  };
+
+  cardsGridEl.appendChild(addBox);
+}
+
+/* DB listeners */
 onValue(collectionsRef, snap => {
   collections = snap.val() || {};
-  render();
+  renderCollections();
 });
 
 onValue(activeRef, snap => {
   active = snap.val() || {};
-  render();
+  renderCollections();
 });
 
+onValue(cardsRef, snap => {
+  cards = snap.val() || {};
+  renderActiveCollection();
+});
+
+/* New collection */
 newBtn.onclick = () => {
-  const name = window.prompt("Collection name:");
+  const name = prompt("Collection name:");
   if (!name) return;
 
   const newRef = push(collectionsRef);
@@ -187,4 +339,3 @@ newBtn.onclick = () => {
 
 </body>
 </html>
-

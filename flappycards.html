@@ -1,1 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flappy Flashcards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #fff;
+    font-family: system-ui, sans-serif;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 20;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgb(177,151,252);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  /* Flashcard popup */
+  .flashcard-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    transform: translate(-50%, -50%);
+    background: #f4edff;
+    border: 2px solid rgba(177,151,252,0.6);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    z-index: 30;
+    display: none;
+  }
+
+  .flashcard-popup h2 {
+    margin-bottom: 14px;
+    font-size: 1.2rem;
+  }
+
+  .choice-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: rgb(177,151,252);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  /* Death screen */
+  .death-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 40;
+    display: none;
+  }
+
+  .death-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+</head>
+
+<body>
+
+<a class="back-btn" href="gamepage.html">◂ Back</a>
+
+<canvas id="game"></canvas>
+
+<div class="flashcard-popup" id="flashcard">
+  <h2 id="flashcard-question">Question</h2>
+  <button class="choice-btn" id="choice-btn">Answer</button>
+</div>
+
+<div class="death-screen" id="death">
+  <img src="images/you died.png">
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* DEVICE ID */
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = "dev_" + Math.random().toString(36).substring(2);
+  localStorage.setItem("deviceId", deviceId);
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
+  authDomain: "flashcards-c5a5d.firebaseapp.com",
+  projectId: "flashcards-c5a5d",
+  storageBucket: "flashcards-c5a5d.firebasestorage.app",
+  messagingSenderId: "543230755849",
+  appId: "1:543230755849:web:32faecba0d923cd51024d8",
+  measurementId: "G-PV1J86WTH9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app,
+ "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+);
+
+/* Load active collections + cards */
+let activeCollections = {};
+let cards = [];
+
+onValue(ref(db, "activeCollections/" + deviceId), snap => {
+  activeCollections = snap.val() || {};
+  loadCards();
+});
+
+onValue(ref(db, "cards/" + deviceId), snap => {
+  const all = snap.val() || {};
+  cards = Object.values(all);
+  loadCards();
+});
+
+let gameFlashcards = [];
+
+function loadCards() {
+  const activeIds = Object.keys(activeCollections).filter(id => activeCollections[id]);
+  gameFlashcards = cards.filter(c => activeIds.includes(c.collectionId));
+}
+
+/* GAME SETUP */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let birdImg = new Image();
+birdImg.src = "images/birb.png";
+
+let pipeImg = new Image();
+pipeImg.src = "images/pipe.png";
+
+let bird = {
+  x: 120,
+  y: canvas.height / 2,
+  w: 48,
+  h: 48,
+  vel: 0
+};
+
+let gravity = 0.4;
+let jump = -7;
+
+let pipes = [];
+let pipeGap = 180;
+let pipeSpeed = 3;
+
+let awaitingAnswer = false;
+let currentCard = null;
+
+function spawnPipe() {
+  let topHeight = Math.random() * (canvas.height - pipeGap - 200) + 50;
+  pipes.push({
+    x: canvas.width,
+    top: topHeight,
+    bottom: topHeight + pipeGap
+  });
+}
+
+setInterval(spawnPipe, 2000);
+
+/* Flashcard popup */
+const flashcardBox = document.getElementById("flashcard");
+const flashcardQuestion = document.getElementById("flashcard-question");
+const choiceBtn = document.getElementById("choice-btn");
+
+/* Death screen */
+const deathScreen = document.getElementById("death");
+
+function showFlashcard(card) {
+  awaitingAnswer = true;
+  currentCard = card;
+
+  flashcardQuestion.textContent = card.front;
+  flashcardBox.style.display = "block";
+}
+
+choiceBtn.onclick = () => {
+  awaitingAnswer = false;
+  flashcardBox.style.display = "none";
+};
+
+/* DIE */
+function die() {
+  deathScreen.style.display = "block";
+}
+
+/* GAME LOOP */
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  /* Bird physics */
+  bird.vel += gravity;
+  bird.y += bird.vel;
+
+  ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
+
+  pipes.forEach(pipe => {
+    pipe.x -= pipeSpeed;
+
+    ctx.drawImage(pipeImg, pipe.x, pipe.top - pipeImg.height, 80, pipeImg.height);
+    ctx.drawImage(pipeImg, pipe.x, pipe.bottom, 80, pipeImg.height);
+
+    if (
+      bird.x + bird.w > pipe.x &&
+      bird.x < pipe.x + 80 &&
+      (bird.y < pipe.top || bird.y + bird.h > pipe.bottom)
+    ) {
+      die();
+    }
+
+    if (!awaitingAnswer && pipe.x + 80 < bird.x && pipe.x + 80 > bird.x - pipeSpeed) {
+      if (gameFlashcards.length > 0) {
+        let card = gameFlashcards[Math.floor(Math.random() * gameFlashcards.length)];
+        showFlashcard(card);
+      }
+    }
+  });
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+
+/* Controls */
+window.addEventListener("keydown", () => {
+  if (!awaitingAnswer) bird.vel = jump;
+});
+
+window.addEventListener("mousedown", () => {
+  if (!awaitingAnswer) bird.vel = jump;
+});
+</script>
+
+</body>
+</html>

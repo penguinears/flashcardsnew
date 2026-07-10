@@ -1,1 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Collections</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #fff;
+    color: #111;
+    padding: 20px;
+  }
+
+  .back-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgb(177,151,252);
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  .card {
+    max-width: 700px;
+    margin: 0 auto;
+    border: 1px solid #e5e5e5;
+    padding: 20px;
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .collections-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .collection-pill {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #f7f3ff;
+    border: 1px solid rgba(177,151,252,0.6);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #111;
+    transition: 0.15s;
+  }
+
+  .collection-pill:hover {
+    background: #eee4ff;
+  }
+
+  .collection-pill.active {
+    background: rgb(177,151,252);
+    color: #fff;
+  }
+
+  .new-btn {
+    margin-top: 20px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgb(177,151,252);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .active-text {
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+</style>
+</head>
+
+<body>
+
+<a class="back-btn" href="index.html">◂ Back</a>
+
+<h1>Your Collections</h1>
+
+<div class="card">
+  <h2 style="margin-bottom:10px;">Tap to activate or deactivate</h2>
+
+  <div class="collections-list" id="collections-list"></div>
+
+  <div class="active-text">
+    Active collections: <span id="active-collections-text">none</span>
+  </div>
+
+  <button class="new-btn" id="new-collection-btn">New Collection</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, update, onValue }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
+  authDomain: "flashcards-c5a5d.firebaseapp.com",
+  projectId: "flashcards-c5a5d",
+  storageBucket: "flashcards-c5a5d.firebasestorage.app",
+  messagingSenderId: "543230755849",
+  appId: "1:543230755849:web:32faecba0d923cd51024d8",
+  measurementId: "G-PV1J86WTH9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app,
+ "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+);
+
+const collectionsRef = ref(db, "collections");
+const activeRef = ref(db, "activeCollections");
+
+const listEl = document.getElementById("collections-list");
+const activeTextEl = document.getElementById("active-collections-text");
+const newBtn = document.getElementById("new-collection-btn");
+
+let collections = {};
+let active = {};
+
+function render() {
+  listEl.innerHTML = "";
+
+  const ids = Object.keys(collections);
+  if (ids.length === 0) {
+    activeTextEl.textContent = "none";
+    return;
+  }
+
+  ids.forEach(id => {
+    const col = collections[id];
+    const name = col.name || "Untitled";
+
+    const pill = document.createElement("button");
+    pill.className = "collection-pill";
+    pill.textContent = name;
+
+    const isActive = !!active[id];
+    if (isActive) pill.classList.add("active");
+
+    pill.onclick = () => {
+      update(activeRef, { [id]: !isActive });
+    };
+
+    listEl.appendChild(pill);
+  });
+
+  const activeIds = Object.keys(active).filter(id => active[id]);
+  activeTextEl.textContent = activeIds.length ? activeIds.join(", ") : "none";
+}
+
+onValue(collectionsRef, snap => {
+  collections = snap.val() || {};
+  render();
+});
+
+onValue(activeRef, snap => {
+  active = snap.val() || {};
+  render();
+});
+
+newBtn.onclick = () => {
+  const name = window.prompt("Collection name:");
+  if (!name) return;
+
+  const newRef = push(collectionsRef);
+  set(newRef, { name });
+};
+</script>
+
+</body>
+</html>
 

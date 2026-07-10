@@ -5,24 +5,521 @@
   <title>drevisonmade.fun</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
 
-  <!-- Firebase v10 CDN (modular) -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .banner {
+      width: 100%;
+      background: #ffffff;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .banner img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-row h1 {
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+    }
+
+    .title-row span {
+      font-size: 0.9rem;
+      color: #666666;
+    }
+
+    .nav-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .nav-tile {
+      flex: 1;
+      min-width: 140px;
+      background: #f7f3ff;
+      border-radius: 14px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid rgba(177, 151, 252, 0.6);
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        border-color 0.12s ease, background 0.12s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .nav-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+      background: #f0e8ff;
+    }
+
+    .nav-tile i {
+      font-size: 1.6rem;
+      color: rgb(177, 151, 252);
+    }
+
+    .nav-label {
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-sub {
+      font-size: 0.8rem;
+      color: #777777;
+      text-align: center;
+    }
+
+    .card {
+      border-radius: 16px;
+      border: 1px solid #e5e5e5;
+      background: #ffffff;
+      padding: 16px 14px 18px;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-header h2 {
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #777777;
+    }
+
+    .card-header span {
+      font-size: 0.8rem;
+      color: rgb(177, 151, 252);
+    }
+
+    .streak-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .streak-icon {
+      font-size: 1.6rem;
+    }
+
+    .streak-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .streak-main {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .streak-sub {
+      font-size: 0.8rem;
+      color: #777777;
+    }
+
+    .streak-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    .streak-stat {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f5f5f5;
+    }
+
+    .streak-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid #dddddd;
+      background: #ffffff;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      border-color: rgb(177, 151, 252);
+      background: rgb(177, 151, 252);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-outline {
+      border-color: #cccccc;
+      background: #ffffff;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .view-header {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .view-header h2 {
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #555555;
+    }
+
+    .view-header span {
+      font-size: 0.85rem;
+      color: #777777;
+    }
+
+    .collections-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .collection-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(177, 151, 252, 0.6);
+      background: #f7f3ff;
+      color: #333333;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .collection-pill.active {
+      background: rgb(177, 151, 252);
+      color: #ffffff;
+    }
+
+    .collection-pill span {
+      font-size: 0.75rem;
+      color: #ffffff;
+      opacity: 0.8;
+    }
+
+    .collections-footer {
+      font-size: 0.8rem;
+      color: #777777;
+      margin-top: 6px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field-group label {
+      font-size: 0.8rem;
+      color: #777777;
+    }
+
+    .field-group input,
+    .field-group select {
+      border-radius: 8px;
+      border: 1px solid #dddddd;
+      background: #ffffff;
+      padding: 7px 9px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus {
+      border-color: rgb(177, 151, 252);
+    }
+
+    @media (max-width: 640px) {
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-tile {
+        min-width: calc(50% - 8px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <img src="images/banner.jpeg" alt="drevisonmade.fun banner" />
+  </div>
+
+  <main class="shell">
+    <div class="title-row">
+      <h1>drevisonmade.fun</h1>
+      <span>Flashcard decks, practice, games, and streaks.</span>
+    </div>
+
+    <section class="nav-row">
+      <button class="nav-tile" type="button" data-view="home">
+        <i class="fa-solid fa-house" style="color: rgb(177, 151, 252);"></i>
+        <div class="nav-label">Home</div>
+        <div class="nav-sub">Streak, XP, and quick access.</div>
+      </button>
+
+      <button class="nav-tile" type="button" data-view="collections">
+        <i class="fa-solid fa-layer-group" style="color: rgb(177, 151, 252);"></i>
+        <div class="nav-label">Collections</div>
+        <div class="nav-sub">Make and activate decks.</div>
+      </button>
+
+      <button class="nav-tile" type="button" data-view="add">
+        <i class="fa-solid fa-plus" style="color: rgb(177, 151, 252);"></i>
+        <div class="nav-label">Add cards</div>
+        <div class="nav-sub">Create new cards for a deck.</div>
+      </button>
+
+      <button class="nav-tile" type="button" data-view="freeplay">
+        <i class="fa-solid fa-lightbulb" style="color: rgb(177, 151, 252);"></i>
+        <div class="nav-label">Free practice</div>
+        <div class="nav-sub">Drill cards with no rules.</div>
+      </button>
+
+      <button class="nav-tile" type="button" data-view="games">
+        <i class="fa-solid fa-gamepad" style="color: rgb(177, 151, 252);"></i>
+        <div class="nav-label">Games</div>
+        <div class="nav-sub">Play with your decks.</div>
+      </button>
+    </section>
+
+    <!-- HOME VIEW -->
+    <section class="view active" id="view-home">
+      <div class="card">
+        <div class="card-header">
+          <h2>Streak</h2>
+          <span>10 XP per flashcard. 100 XP = +1 streak.</span>
+        </div>
+
+        <div class="streak-row">
+          <div class="streak-icon" id="streak-icon">
+            <i class="fa-solid fa-fire" style="color: #cccccc;"></i>
+          </div>
+          <div class="streak-text">
+            <div class="streak-main" id="streak-state-text">Streak inactive</div>
+            <div class="streak-sub">
+              <span id="streak-detail-text">
+                Do cards to build XP and keep your streak alive.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="streak-stats">
+          <div class="streak-stat">
+            XP: <span id="xp-value">0</span>
+          </div>
+          <div class="streak-stat">
+            Streak: <span id="streak-value">0</span> days
+          </div>
+          <div class="streak-stat">
+            Freezes available: <span id="freeze-available">1</span>
+          </div>
+          <div class="streak-stat">
+            State: <span id="streak-state-label">Inactive</span>
+          </div>
+        </div>
+
+        <div class="streak-actions">
+          <button class="btn btn-primary" type="button" id="log-card-btn">
+            Log one card (+10 XP)
+          </button>
+          <button class="btn btn-outline" type="button" id="toggle-freeze-btn">
+            Freeze / unfreeze streak
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLLECTIONS VIEW -->
+    <section class="view" id="view-collections">
+      <div class="view-header">
+        <h2>Collections</h2>
+        <span>Make decks and choose which are active.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Your collections</h2>
+          <span>Tap to toggle active.</span>
+        </div>
+
+        <div class="collections-list" id="collections-list"></div>
+
+        <div class="collections-footer">
+          Active collections: <span id="active-collections-text">none</span>
+        </div>
+
+        <div class="streak-actions" style="margin-top: 14px;">
+          <button class="btn btn-primary" type="button" id="new-collection-btn">
+            New collection
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD CARDS VIEW -->
+    <section class="view" id="view-add">
+      <div class="view-header">
+        <h2>Add cards</h2>
+        <span>Pick a collection and add front/back.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>New card</h2>
+          <span>Cards are saved to your deck.</span>
+        </div>
+
+        <form id="add-card-form">
+          <div class="field-group">
+            <label for="card-collection">Collection</label>
+            <select id="card-collection" required></select>
+          </div>
+          <div class="field-group">
+            <label for="card-front">Front</label>
+            <input id="card-front" type="text" autocomplete="off" required />
+          </div>
+          <div class="field-group">
+            <label for="card-back">Back</label>
+            <input id="card-back" type="text" autocomplete="off" required />
+          </div>
+
+          <button class="btn btn-primary" type="submit">
+            Save card
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FREEPLAY VIEW -->
+    <section class="view" id="view-freeplay">
+      <div class="view-header">
+        <h2>Free practice</h2>
+        <span>Use active collections to drill cards.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Coming next</h2>
+          <span>Hook into active collections and log XP.</span>
+        </div>
+        <p style="font-size:0.9rem; color:#555555;">
+          This page will use your active collections to show cards in a free
+          practice flow. Each card you complete should call the same XP logic
+          as the “Log one card” button on home, so streak and freezes stay in
+          sync.
+        </p>
+      </div>
+    </section>
+
+    <!-- GAMES VIEW -->
+    <section class="view" id="view-games">
+      <div class="view-header">
+        <h2>Games</h2>
+        <span>Play with your decks.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Game modes</h2>
+          <span>Use active collections as the source.</span>
+        </div>
+        <p style="font-size:0.9rem; color:#555555;">
+          This page is ready for game UIs. Use the same collections and card
+          data, and call the XP update when a card is answered to keep the
+          streak system consistent.
+        </p>
+      </div>
+    </section>
+  </main>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
     import {
       getDatabase,
       ref,
-      push,
       set,
+      push,
       onValue,
       update
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -39,487 +536,227 @@
 
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    const db = getDatabase(app);
+    const db = getDatabase(
+      app,
+      "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+    );
 
-    const collectionsList = document.addEventListener("DOMContentLoaded", () => {
-      const collectionsContainer = document.getElementById("collections-list");
-      const activeCollectionsContainer = document.getElementById("active-collections");
-      const addCardForm = document.getElementById("add-card-form");
-      const addCardModal = document.getElementById("add-card-modal");
-      const addCardOpenBtn = document.getElementById("add-btn");
-      const addCardCloseBtn = document.getElementById("close-add-modal");
-      const collectionSelect = document.getElementById("card-collection");
-      const cardFrontInput = document.getElementById("card-front");
-      const cardBackInput = document.getElementById("card-back");
+    const views = {
+      home: document.getElementById("view-home"),
+      collections: document.getElementById("view-collections"),
+      add: document.getElementById("view-add"),
+      freeplay: document.getElementById("view-freeplay"),
+      games: document.getElementById("view-games")
+    };
 
-      const collectionsRef = ref(db, "collections");
-      const cardsRef = ref(db, "cards");
-      const activeRef = ref(db, "activeCollections");
-
-      // Load collections
-      onValue(collectionsRef, snapshot => {
-        const data = snapshot.val() || {};
-        collectionsContainer.innerHTML = "";
-        collectionSelect.innerHTML = "";
-
-        Object.entries(data).forEach(([id, col]) => {
-          const item = document.createElement("button");
-          item.className = "collection-item";
-          item.dataset.id = id;
-          item.textContent = col.name || "Untitled";
-
-          item.addEventListener("click", () => {
-            const isActive = item.classList.toggle("active");
-            updateActiveCollection(id, isActive);
-          });
-
-          collectionsContainer.appendChild(item);
-
-          const opt = document.createElement("option");
-          opt.value = id;
-          opt.textContent = col.name || "Untitled";
-          collectionSelect.appendChild(opt);
-        });
+    document.querySelectorAll(".nav-tile").forEach(tile => {
+      tile.addEventListener("click", () => {
+        const target = tile.dataset.view;
+        Object.values(views).forEach(v => v.classList.remove("active"));
+        if (views[target]) views[target].classList.add("active");
       });
+    });
 
-      // Load active collections
-      onValue(activeRef, snapshot => {
-        const data = snapshot.val() || {};
-        activeCollectionsContainer.innerHTML = "";
-        Object.entries(data).forEach(([id, active]) => {
-          if (active) {
-            const tag = document.createElement("span");
-            tag.className = "active-tag";
-            tag.textContent = id;
-            activeCollectionsContainer.appendChild(tag);
-          }
-        });
-      });
+    const xpValueEl = document.getElementById("xp-value");
+    const streakValueEl = document.getElementById("streak-value");
+    const freezeAvailableEl = document.getElementById("freeze-available");
+    const streakStateLabelEl = document.getElementById("streak-state-label");
+    const streakStateTextEl = document.getElementById("streak-state-text");
+    const streakDetailTextEl = document.getElementById("streak-detail-text");
+    const streakIconEl = document.getElementById("streak-icon");
 
-      function updateActiveCollection(id, isActive) {
-        update(activeRef, { [id]: isActive });
+    const logCardBtn = document.getElementById("log-card-btn");
+    const toggleFreezeBtn = document.getElementById("toggle-freeze-btn");
+
+    const metaRef = ref(db, "meta");
+    let meta = {
+      xp: 0,
+      frozen: false,
+      usedFreezes: 0
+    };
+
+    function applyMetaToUI() {
+      const xp = meta.xp || 0;
+      const frozen = !!meta.frozen;
+      const usedFreezes = meta.usedFreezes || 0;
+
+      const streak = Math.floor(xp / 100);
+      const totalFreezes = 1 + Math.floor(xp / 500);
+      const availableFreezes = Math.max(totalFreezes - usedFreezes, 0);
+
+      xpValueEl.textContent = xp;
+      streakValueEl.textContent = streak;
+      freezeAvailableEl.textContent = availableFreezes;
+
+      let stateLabel = "Inactive";
+      let stateText = "Do cards to build XP and start your streak.";
+      let iconColor = "#cccccc";
+
+      if (xp === 0) {
+        stateLabel = "Inactive";
+        stateText = "No XP yet. Each flashcard gives 10 XP.";
+        iconColor = "#cccccc";
+      } else if (frozen) {
+        stateLabel = "Frozen";
+        stateText =
+          "Streak is frozen. XP still grows, but the streak is protected.";
+        iconColor = "#3fa9f5"; // ice blue
+      } else {
+        stateLabel = "Active";
+        stateText =
+          "Streak is live. Keep doing cards to push XP and avoid dropping.";
+        iconColor = "#ff8c00"; // orange
       }
 
-      // Add card modal
-      addCardOpenBtn.addEventListener("click", () => {
-        addCardModal.classList.add("show");
-      });
+      streakStateLabelEl.textContent = stateLabel;
+      streakStateTextEl.textContent = `Streak ${stateLabel.toLowerCase()}`;
+      streakDetailTextEl.textContent = stateText;
+      streakIconEl.innerHTML =
+        `<i class="fa-solid fa-fire" style="color: ${iconColor};"></i>`;
+    }
 
-      addCardCloseBtn.addEventListener("click", () => {
-        addCardModal.classList.remove("show");
-      });
+    onValue(metaRef, snapshot => {
+      const data = snapshot.val();
+      if (data) meta = data;
+      applyMetaToUI();
+    });
 
-      addCardForm.addEventListener("submit", e => {
-        e.preventDefault();
-        const front = cardFrontInput.value.trim();
-        const back = cardBackInput.value.trim();
-        const collectionId = collectionSelect.value;
+    function saveMeta(newMeta) {
+      meta = newMeta;
+      set(metaRef, meta);
+      applyMetaToUI();
+    }
 
-        if (!front || !back || !collectionId) return;
+    function addXp(amount) {
+      const xp = (meta.xp || 0) + amount;
+      const frozen = !!meta.frozen;
+      const usedFreezes = meta.usedFreezes || 0;
+      saveMeta({ xp, frozen, usedFreezes });
+    }
 
-        const newCardRef = push(cardsRef);
-        set(newCardRef, {
-          front,
-          back,
-          collectionId,
-          createdAt: Date.now()
-        }).then(() => {
-          cardFrontInput.value = "";
-          cardBackInput.value = "";
-          addCardModal.classList.remove("show");
+    logCardBtn.addEventListener("click", () => {
+      addXp(10);
+    });
+
+    toggleFreezeBtn.addEventListener("click", () => {
+      const xp = meta.xp || 0;
+      const frozen = !!meta.frozen;
+      let usedFreezes = meta.usedFreezes || 0;
+
+      const totalFreezes = 1 + Math.floor(xp / 500);
+      const availableFreezes = Math.max(totalFreezes - usedFreezes, 0);
+
+      if (!frozen) {
+        if (availableFreezes <= 0) return;
+        usedFreezes += 1;
+        saveMeta({ xp, frozen: true, usedFreezes });
+      } else {
+        saveMeta({ xp, frozen: false, usedFreezes });
+      }
+    });
+
+    const collectionsListEl = document.getElementById("collections-list");
+    const activeCollectionsTextEl = document.getElementById(
+      "active-collections-text"
+    );
+    const newCollectionBtn = document.getElementById("new-collection-btn");
+
+    const addCardForm = document.getElementById("add-card-form");
+    const cardCollectionSelect = document.getElementById("card-collection");
+    const cardFrontInput = document.getElementById("card-front");
+    const cardBackInput = document.getElementById("card-back");
+
+    const collectionsRef = ref(db, "collections");
+    const activeCollectionsRef = ref(db, "activeCollections");
+    const cardsRef = ref(db, "cards");
+
+    let collections = {};
+    let activeCollections = {};
+
+    function renderCollections() {
+      collectionsListEl.innerHTML = "";
+      cardCollectionSelect.innerHTML = "";
+
+      const ids = Object.keys(collections);
+      if (ids.length === 0) {
+        activeCollectionsTextEl.textContent = "none";
+        return;
+      }
+
+      ids.forEach(id => {
+        const col = collections[id];
+        const name = col.name || "Untitled";
+
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "collection-pill";
+        pill.textContent = name;
+
+        const isActive = !!activeCollections[id];
+        if (isActive) {
+          pill.classList.add("active");
+          const tag = document.createElement("span");
+          tag.textContent = "active";
+          pill.appendChild(tag);
+        }
+
+        pill.addEventListener("click", () => {
+          const nowActive = !isActive;
+          update(activeCollectionsRef, { [id]: nowActive });
         });
+
+        collectionsListEl.appendChild(pill);
+
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = name;
+        cardCollectionSelect.appendChild(opt);
+      });
+
+      const activeIds = Object.keys(activeCollections).filter(
+        id => activeCollections[id]
+      );
+      activeCollectionsTextEl.textContent =
+        activeIds.length === 0 ? "none" : activeIds.join(", ");
+    }
+
+    onValue(collectionsRef, snapshot => {
+      const data = snapshot.val() || {};
+      collections = data;
+      renderCollections();
+    });
+
+    onValue(activeCollectionsRef, snapshot => {
+      const data = snapshot.val() || {};
+      activeCollections = data;
+      renderCollections();
+    });
+
+    newCollectionBtn.addEventListener("click", () => {
+      const name = window.prompt("Collection name");
+      if (!name) return;
+      const newRef = push(collectionsRef);
+      set(newRef, { name });
+    });
+
+    addCardForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const collectionId = cardCollectionSelect.value;
+      const front = cardFrontInput.value.trim();
+      const back = cardBackInput.value.trim();
+      if (!collectionId || !front || !back) return;
+
+      const newCardRef = push(cardsRef);
+      set(newCardRef, {
+        collectionId,
+        front,
+        back,
+        createdAt: Date.now()
+      }).then(() => {
+        cardFrontInput.value = "";
+        cardBackInput.value = "";
       });
     });
   </script>
-
-  <style>
-    :root {
-      --purple-main: rgb(177, 151, 252);
-      --purple-dark: #5b3ea8;
-      --bg: #0b0b12;
-      --card-bg: #151524;
-      --text-main: #ffffff;
-      --text-muted: #b3b3c7;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1b1230 0, #050509 55%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .banner {
-      width: 100%;
-      height: 220px;
-      background: #000;
-      overflow: hidden;
-    }
-
-    .banner img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .shell {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 20px 16px 40px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-    }
-
-    .title-row h1 {
-      font-size: 1.6rem;
-      letter-spacing: 0.04em;
-    }
-
-    .title-row span {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .nav-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .nav-tile {
-      flex: 1;
-      min-width: 140px;
-      background: linear-gradient(135deg, #1f1635, #151524);
-      border-radius: 14px;
-      padding: 14px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      border: 1px solid rgba(177, 151, 252, 0.35);
-      transition: transform 0.12s ease, box-shadow 0.12s ease,
-        border-color 0.12s ease;
-    }
-
-    .nav-tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-      border-color: var(--purple-main);
-    }
-
-    .nav-tile i {
-      font-size: 1.6rem;
-      color: var(--purple-main);
-    }
-
-    .nav-label {
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-main);
-    }
-
-    .nav-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
-
-    .panel {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px 14px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .panel-header h2 {
-      font-size: 1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .panel-header span {
-      font-size: 0.8rem;
-      color: var(--purple-main);
-    }
-
-    .collections-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .collection-item {
-      border-radius: 999px;
-      border: 1px solid rgba(177, 151, 252, 0.4);
-      background: #1b1b2b;
-      color: var(--text-main);
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.12s ease, border-color 0.12s ease,
-        color 0.12s ease;
-    }
-
-    .collection-item.active {
-      background: var(--purple-main);
-      border-color: var(--purple-main);
-      color: #050509;
-    }
-
-    .active-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 22px;
-    }
-
-    .active-tag {
-      font-size: 0.75rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(177, 151, 252, 0.16);
-      color: var(--purple-main);
-    }
-
-    .panel-footer {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Add card modal */
-
-    #add-card-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-    }
-
-    #add-card-modal.show {
-      display: flex;
-    }
-
-    .modal-inner {
-      width: 100%;
-      max-width: 420px;
-      background: #11111c;
-      border-radius: 16px;
-      padding: 18px 16px 16px;
-      border: 1px solid rgba(177, 151, 252, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .modal-header h3 {
-      font-size: 1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .modal-header button {
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .field label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .field input,
-    .field select {
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #181824;
-      color: var(--text-main);
-      padding: 7px 9px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    .field input:focus,
-    .field select:focus {
-      border-color: var(--purple-main);
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 4px;
-    }
-
-    .primary-btn {
-      border-radius: 999px;
-      border: none;
-      background: var(--purple-main);
-      color: #050509;
-      padding: 7px 16px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .primary-btn:hover {
-      filter: brightness(1.05);
-    }
-
-    @media (max-width: 640px) {
-      .banner {
-        height: 180px;
-      }
-      .nav-tile {
-        min-width: calc(50% - 8px);
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Full-width banner -->
-  <div class="banner">
-    <img src="images/banner.jpeg" alt="drevisonmade.fun banner" />
-  </div>
-
-  <main class="shell">
-    <div class="title-row">
-      <h1>drevisonmade.fun</h1>
-      <span>Flashcard decks, practice, and games in one place.</span>
-    </div>
-
-    <!-- Main row of actions -->
-    <section class="nav-row">
-      <!-- Collections -->
-      <button class="nav-tile" type="button" id="collections-btn">
-        <i class="fa-solid fa-layer-group" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Collections</div>
-        <div class="nav-sub">Browse and activate one or more decks.</div>
-      </button>
-
-      <!-- Add card -->
-      <button class="nav-tile" type="button" id="add-btn">
-        <i class="fa-solid fa-plus" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Add</div>
-        <div class="nav-sub">Create new cards for your decks.</div>
-      </button>
-
-      <!-- Free practice -->
-      <a class="nav-tile" href="freeplay.html">
-        <i class="fa-solid fa-lightbulb" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Free practice</div>
-        <div class="nav-sub">Drill active cards with no rules.</div>
-      </a>
-
-      <!-- Games -->
-      <a class="nav-tile" href="gamepage.html">
-        <i class="fa-solid fa-gamepad" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Games</div>
-        <div class="nav-sub">Play with your decks in game modes.</div>
-      </a>
-    </section>
-
-    <!-- Collections panel -->
-    <section class="panel" id="collections-panel">
-      <div class="panel-header">
-        <h2>Collections</h2>
-        <span>Select one or more to activate.</span>
-      </div>
-
-      <div class="collections-strip" id="collections-list">
-        <!-- Filled from Firebase: each button is a collection -->
-      </div>
-
-      <div class="panel-footer">
-        <div>Active collections:</div>
-        <div class="active-row" id="active-collections"></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Add card modal -->
-  <div id="add-card-modal">
-    <div class="modal-inner">
-      <div class="modal-header">
-        <h3>Add card</h3>
-        <button id="close-add-modal">Close</button>
-      </div>
-      <form id="add-card-form">
-        <div class="modal-body">
-          <div class="field">
-            <label for="card-collection">Collection</label>
-            <select id="card-collection" required></select>
-          </div>
-          <div class="field">
-            <label for="card-front">Front</label>
-            <input id="card-front" type="text" autocomplete="off" required />
-          </div>
-          <div class="field">
-            <label for="card-back">Back</label>
-            <input id="card-back" type="text" autocomplete="off" required />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="primary-btn" type="submit">Save card</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </body>
 </html>

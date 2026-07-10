@@ -1,762 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>drevisonmade.fun</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>drevisonmade.fun</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #ffffff;
+    color: #111;
+  }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-      background: #ffffff;
-      color: #111111;
-    }
+  .banner {
+    width: 100%;
+    background: #fff;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: center;
+  }
 
-    .banner {
-      width: 100%;
-      background: #ffffff;
-      padding: 12px 0;
-      border-bottom: 1px solid #e5e5e5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  .banner img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
 
-    .banner img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      object-fit: contain;
-    }
+  .shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+  }
 
-    .shell {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 20px 16px 40px;
-    }
+  .nav-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
 
-    .title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
+  .nav-tile {
+    flex: 1;
+    min-width: 140px;
+    background: #f7f3ff;
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+    border: 1px solid rgba(177,151,252,0.6);
+    cursor: pointer;
+    text-decoration: none;
+    color: #111;
+    transition: 0.15s;
+  }
 
-    .title-row h1 {
-      font-size: 1.6rem;
-      letter-spacing: 0.04em;
-    }
+  .nav-tile:hover {
+    background: #eee4ff;
+    transform: translateY(-2px);
+  }
 
-    .title-row span {
-      font-size: 0.9rem;
-      color: #666666;
-    }
+  .nav-tile i {
+    font-size: 1.6rem;
+    color: rgb(177,151,252);
+  }
 
-    .nav-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
+  .nav-label {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+  }
 
-    .nav-tile {
-      flex: 1;
-      min-width: 140px;
-      background: #f7f3ff;
-      border-radius: 14px;
-      padding: 14px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      border: 1px solid rgba(177, 151, 252, 0.6);
-      transition: transform 0.12s ease, box-shadow 0.12s ease,
-        border-color 0.12s ease, background 0.12s ease;
-      text-decoration: none;
-      color: inherit;
-    }
+  .card {
+    border-radius: 16px;
+    border: 1px solid #e5e5e5;
+    padding: 16px;
+    background: #fff;
+  }
 
-    .nav-tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-      background: #f0e8ff;
-    }
+  .streak-icon i {
+    font-size: 2rem;
+  }
 
-    .nav-tile i {
-      font-size: 1.6rem;
-      color: rgb(177, 151, 252);
-    }
+  .btn {
+    border-radius: 999px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
 
-    .nav-label {
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+  .btn-purple {
+    background: rgb(177,151,252);
+    color: #fff;
+  }
 
-    .nav-sub {
-      font-size: 0.8rem;
-      color: #777777;
-      text-align: center;
-    }
-
-    .card {
-      border-radius: 16px;
-      border: 1px solid #e5e5e5;
-      background: #ffffff;
-      padding: 16px 14px 18px;
-      margin-bottom: 20px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .card-header h2 {
-      font-size: 1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #777777;
-    }
-
-    .card-header span {
-      font-size: 0.8rem;
-      color: rgb(177, 151, 252);
-    }
-
-    .streak-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .streak-icon {
-      font-size: 1.6rem;
-    }
-
-    .streak-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .streak-main {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .streak-sub {
-      font-size: 0.8rem;
-      color: #777777;
-    }
-
-    .streak-stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      font-size: 0.85rem;
-      margin-top: 6px;
-    }
-
-    .streak-stat {
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #f5f5f5;
-    }
-
-    .streak-actions {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 1px solid #dddddd;
-      background: #ffffff;
-      padding: 7px 14px;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      border-color: rgb(177, 151, 252);
-      background: rgb(177, 151, 252);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      filter: brightness(1.05);
-    }
-
-    .btn-outline {
-      border-color: #cccccc;
-      background: #ffffff;
-    }
-
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
-
-    .view-header {
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .view-header h2 {
-      font-size: 1.1rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #555555;
-    }
-
-    .view-header span {
-      font-size: 0.85rem;
-      color: #777777;
-    }
-
-    .collections-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .collection-pill {
-      border-radius: 999px;
-      border: 1px solid rgba(177, 151, 252, 0.6);
-      background: #f7f3ff;
-      color: #333333;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .collection-pill.active {
-      background: rgb(177, 151, 252);
-      color: #ffffff;
-    }
-
-    .collection-pill span {
-      font-size: 0.75rem;
-      color: #ffffff;
-      opacity: 0.8;
-    }
-
-    .collections-footer {
-      font-size: 0.8rem;
-      color: #777777;
-      margin-top: 6px;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    .field-group label {
-      font-size: 0.8rem;
-      color: #777777;
-    }
-
-    .field-group input,
-    .field-group select {
-      border-radius: 8px;
-      border: 1px solid #dddddd;
-      background: #ffffff;
-      padding: 7px 9px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    .field-group input:focus,
-    .field-group select:focus {
-      border-color: rgb(177, 151, 252);
-    }
-
-    @media (max-width: 640px) {
-      .title-row {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .nav-tile {
-        min-width: calc(50% - 8px);
-      }
-    }
-  </style>
+  .btn-outline {
+    background: #fff;
+    border: 1px solid #ccc;
+  }
+</style>
 </head>
+
 <body>
-  <div class="banner">
-    <img src="images/banner.jpeg" alt="drevisonmade.fun banner" />
+
+<div class="banner">
+  <img src="images/banner.jpeg">
+</div>
+
+<div class="shell">
+
+  <h1 style="margin-bottom:20px;">drevisonmade.fun</h1>
+
+  <div class="nav-row">
+    <a class="nav-tile" href="collections.html">
+      <i class="fa-solid fa-layer-group"></i>
+      <div class="nav-label">Collections</div>
+    </a>
+
+    <a class="nav-tile" href="add.html">
+      <i class="fa-solid fa-plus"></i>
+      <div class="nav-label">Add Cards</div>
+    </a>
+
+    <a class="nav-tile" href="freeplay.html">
+      <i class="fa-solid fa-lightbulb"></i>
+      <div class="nav-label">Free Practice</div>
+    </a>
+
+    <a class="nav-tile" href="gamepage.html">
+      <i class="fa-solid fa-gamepad"></i>
+      <div class="nav-label">Games</div>
+    </a>
   </div>
 
-  <main class="shell">
-    <div class="title-row">
-      <h1>drevisonmade.fun</h1>
-      <span>Flashcard decks, practice, games, and streaks.</span>
+  <div class="card">
+    <h2 style="margin-bottom:10px;">Streak</h2>
+
+    <div class="streak-icon" id="streak-icon">
+      <i class="fa-solid fa-fire" style="color:#ccc;"></i>
     </div>
 
-    <section class="nav-row">
-      <button class="nav-tile" type="button" data-view="home">
-        <i class="fa-solid fa-house" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Home</div>
-        <div class="nav-sub">Streak, XP, and quick access.</div>
-      </button>
+    <p>XP: <span id="xp-value">0</span></p>
+    <p>Streak: <span id="streak-value">0</span> days</p>
+    <p>Freezes: <span id="freeze-value">1</span></p>
 
-      <button class="nav-tile" type="button" data-view="collections">
-        <i class="fa-solid fa-layer-group" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Collections</div>
-        <div class="nav-sub">Make and activate decks.</div>
-      </button>
+    <button class="btn btn-purple" id="log-card-btn">Log one card (+10 XP)</button>
+    <button class="btn btn-outline" id="freeze-btn">Freeze / Unfreeze</button>
+  </div>
 
-      <button class="nav-tile" type="button" data-view="add">
-        <i class="fa-solid fa-plus" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Add cards</div>
-        <div class="nav-sub">Create new cards for a deck.</div>
-      </button>
+</div>
 
-      <button class="nav-tile" type="button" data-view="freeplay">
-        <i class="fa-solid fa-lightbulb" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Free practice</div>
-        <div class="nav-sub">Drill cards with no rules.</div>
-      </button>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-      <button class="nav-tile" type="button" data-view="games">
-        <i class="fa-solid fa-gamepad" style="color: rgb(177, 151, 252);"></i>
-        <div class="nav-label">Games</div>
-        <div class="nav-sub">Play with your decks.</div>
-      </button>
-    </section>
+const firebaseConfig = {
+  apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
+  authDomain: "flashcards-c5a5d.firebaseapp.com",
+  projectId: "flashcards-c5a5d",
+  storageBucket: "flashcards-c5a5d.firebasestorage.app",
+  messagingSenderId: "543230755849",
+  appId: "1:543230755849:web:32faecba0d923cd51024d8",
+  measurementId: "G-PV1J86WTH9"
+};
 
-    <!-- HOME VIEW -->
-    <section class="view active" id="view-home">
-      <div class="card">
-        <div class="card-header">
-          <h2>Streak</h2>
-          <span>10 XP per flashcard. 100 XP = +1 streak.</span>
-        </div>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app,
+ "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+);
 
-        <div class="streak-row">
-          <div class="streak-icon" id="streak-icon">
-            <i class="fa-solid fa-fire" style="color: #cccccc;"></i>
-          </div>
-          <div class="streak-text">
-            <div class="streak-main" id="streak-state-text">Streak inactive</div>
-            <div class="streak-sub">
-              <span id="streak-detail-text">
-                Do cards to build XP and keep your streak alive.
-              </span>
-            </div>
-          </div>
-        </div>
+const metaRef = ref(db, "meta");
 
-        <div class="streak-stats">
-          <div class="streak-stat">
-            XP: <span id="xp-value">0</span>
-          </div>
-          <div class="streak-stat">
-            Streak: <span id="streak-value">0</span> days
-          </div>
-          <div class="streak-stat">
-            Freezes available: <span id="freeze-available">1</span>
-          </div>
-          <div class="streak-stat">
-            State: <span id="streak-state-label">Inactive</span>
-          </div>
-        </div>
+let meta = { xp:0, frozen:false, usedFreezes:0 };
 
-        <div class="streak-actions">
-          <button class="btn btn-primary" type="button" id="log-card-btn">
-            Log one card (+10 XP)
-          </button>
-          <button class="btn btn-outline" type="button" id="toggle-freeze-btn">
-            Freeze / unfreeze streak
-          </button>
-        </div>
-      </div>
-    </section>
+function updateUI() {
+  const xp = meta.xp;
+  const streak = Math.floor(xp/100);
+  const freezes = 1 + Math.floor(xp/500) - meta.usedFreezes;
 
-    <!-- COLLECTIONS VIEW -->
-    <section class="view" id="view-collections">
-      <div class="view-header">
-        <h2>Collections</h2>
-        <span>Make decks and choose which are active.</span>
-      </div>
+  document.getElementById("xp-value").textContent = xp;
+  document.getElementById("streak-value").textContent = streak;
+  document.getElementById("freeze-value").textContent = freezes;
 
-      <div class="card">
-        <div class="card-header">
-          <h2>Your collections</h2>
-          <span>Tap to toggle active.</span>
-        </div>
+  let color = "#ccc";
+  if (xp > 0 && !meta.frozen) color = "#ff8c00";
+  if (meta.frozen) color = "#3fa9f5";
 
-        <div class="collections-list" id="collections-list"></div>
+  document.getElementById("streak-icon").innerHTML =
+    `<i class="fa-solid fa-fire" style="color:${color};"></i>`;
+}
 
-        <div class="collections-footer">
-          Active collections: <span id="active-collections-text">none</span>
-        </div>
+onValue(metaRef, snap => {
+  meta = snap.val() || meta;
+  updateUI();
+});
 
-        <div class="streak-actions" style="margin-top: 14px;">
-          <button class="btn btn-primary" type="button" id="new-collection-btn">
-            New collection
-          </button>
-        </div>
-      </div>
-    </section>
+document.getElementById("log-card-btn").onclick = () => {
+  meta.xp += 10;
+  set(metaRef, meta);
+};
 
-    <!-- ADD CARDS VIEW -->
-    <section class="view" id="view-add">
-      <div class="view-header">
-        <h2>Add cards</h2>
-        <span>Pick a collection and add front/back.</span>
-      </div>
+document.getElementById("freeze-btn").onclick = () => {
+  const xp = meta.xp;
+  const total = 1 + Math.floor(xp/500);
+  const available = total - meta.usedFreezes;
 
-      <div class="card">
-        <div class="card-header">
-          <h2>New card</h2>
-          <span>Cards are saved to your deck.</span>
-        </div>
+  if (!meta.frozen && available > 0) {
+    meta.frozen = true;
+    meta.usedFreezes++;
+  } else {
+    meta.frozen = false;
+  }
+  set(metaRef, meta);
+};
+</script>
 
-        <form id="add-card-form">
-          <div class="field-group">
-            <label for="card-collection">Collection</label>
-            <select id="card-collection" required></select>
-          </div>
-          <div class="field-group">
-            <label for="card-front">Front</label>
-            <input id="card-front" type="text" autocomplete="off" required />
-          </div>
-          <div class="field-group">
-            <label for="card-back">Back</label>
-            <input id="card-back" type="text" autocomplete="off" required />
-          </div>
-
-          <button class="btn btn-primary" type="submit">
-            Save card
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- FREEPLAY VIEW -->
-    <section class="view" id="view-freeplay">
-      <div class="view-header">
-        <h2>Free practice</h2>
-        <span>Use active collections to drill cards.</span>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Coming next</h2>
-          <span>Hook into active collections and log XP.</span>
-        </div>
-        <p style="font-size:0.9rem; color:#555555;">
-          This page will use your active collections to show cards in a free
-          practice flow. Each card you complete should call the same XP logic
-          as the “Log one card” button on home, so streak and freezes stay in
-          sync.
-        </p>
-      </div>
-    </section>
-
-    <!-- GAMES VIEW -->
-    <section class="view" id="view-games">
-      <div class="view-header">
-        <h2>Games</h2>
-        <span>Play with your decks.</span>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Game modes</h2>
-          <span>Use active collections as the source.</span>
-        </div>
-        <p style="font-size:0.9rem; color:#555555;">
-          This page is ready for game UIs. Use the same collections and card
-          data, and call the XP update when a card is answered to keep the
-          streak system consistent.
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-    import {
-      getDatabase,
-      ref,
-      set,
-      push,
-      onValue,
-      update
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
-      authDomain: "flashcards-c5a5d.firebaseapp.com",
-      projectId: "flashcards-c5a5d",
-      storageBucket: "flashcards-c5a5d.firebasestorage.app",
-      messagingSenderId: "543230755849",
-      appId: "1:543230755849:web:32faecba0d923cd51024d8",
-      measurementId: "G-PV1J86WTH9"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getDatabase(
-      app,
-      "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
-    );
-
-    const views = {
-      home: document.getElementById("view-home"),
-      collections: document.getElementById("view-collections"),
-      add: document.getElementById("view-add"),
-      freeplay: document.getElementById("view-freeplay"),
-      games: document.getElementById("view-games")
-    };
-
-    document.querySelectorAll(".nav-tile").forEach(tile => {
-      tile.addEventListener("click", () => {
-        const target = tile.dataset.view;
-        Object.values(views).forEach(v => v.classList.remove("active"));
-        if (views[target]) views[target].classList.add("active");
-      });
-    });
-
-    const xpValueEl = document.getElementById("xp-value");
-    const streakValueEl = document.getElementById("streak-value");
-    const freezeAvailableEl = document.getElementById("freeze-available");
-    const streakStateLabelEl = document.getElementById("streak-state-label");
-    const streakStateTextEl = document.getElementById("streak-state-text");
-    const streakDetailTextEl = document.getElementById("streak-detail-text");
-    const streakIconEl = document.getElementById("streak-icon");
-
-    const logCardBtn = document.getElementById("log-card-btn");
-    const toggleFreezeBtn = document.getElementById("toggle-freeze-btn");
-
-    const metaRef = ref(db, "meta");
-    let meta = {
-      xp: 0,
-      frozen: false,
-      usedFreezes: 0
-    };
-
-    function applyMetaToUI() {
-      const xp = meta.xp || 0;
-      const frozen = !!meta.frozen;
-      const usedFreezes = meta.usedFreezes || 0;
-
-      const streak = Math.floor(xp / 100);
-      const totalFreezes = 1 + Math.floor(xp / 500);
-      const availableFreezes = Math.max(totalFreezes - usedFreezes, 0);
-
-      xpValueEl.textContent = xp;
-      streakValueEl.textContent = streak;
-      freezeAvailableEl.textContent = availableFreezes;
-
-      let stateLabel = "Inactive";
-      let stateText = "Do cards to build XP and start your streak.";
-      let iconColor = "#cccccc";
-
-      if (xp === 0) {
-        stateLabel = "Inactive";
-        stateText = "No XP yet. Each flashcard gives 10 XP.";
-        iconColor = "#cccccc";
-      } else if (frozen) {
-        stateLabel = "Frozen";
-        stateText =
-          "Streak is frozen. XP still grows, but the streak is protected.";
-        iconColor = "#3fa9f5"; // ice blue
-      } else {
-        stateLabel = "Active";
-        stateText =
-          "Streak is live. Keep doing cards to push XP and avoid dropping.";
-        iconColor = "#ff8c00"; // orange
-      }
-
-      streakStateLabelEl.textContent = stateLabel;
-      streakStateTextEl.textContent = `Streak ${stateLabel.toLowerCase()}`;
-      streakDetailTextEl.textContent = stateText;
-      streakIconEl.innerHTML =
-        `<i class="fa-solid fa-fire" style="color: ${iconColor};"></i>`;
-    }
-
-    onValue(metaRef, snapshot => {
-      const data = snapshot.val();
-      if (data) meta = data;
-      applyMetaToUI();
-    });
-
-    function saveMeta(newMeta) {
-      meta = newMeta;
-      set(metaRef, meta);
-      applyMetaToUI();
-    }
-
-    function addXp(amount) {
-      const xp = (meta.xp || 0) + amount;
-      const frozen = !!meta.frozen;
-      const usedFreezes = meta.usedFreezes || 0;
-      saveMeta({ xp, frozen, usedFreezes });
-    }
-
-    logCardBtn.addEventListener("click", () => {
-      addXp(10);
-    });
-
-    toggleFreezeBtn.addEventListener("click", () => {
-      const xp = meta.xp || 0;
-      const frozen = !!meta.frozen;
-      let usedFreezes = meta.usedFreezes || 0;
-
-      const totalFreezes = 1 + Math.floor(xp / 500);
-      const availableFreezes = Math.max(totalFreezes - usedFreezes, 0);
-
-      if (!frozen) {
-        if (availableFreezes <= 0) return;
-        usedFreezes += 1;
-        saveMeta({ xp, frozen: true, usedFreezes });
-      } else {
-        saveMeta({ xp, frozen: false, usedFreezes });
-      }
-    });
-
-    const collectionsListEl = document.getElementById("collections-list");
-    const activeCollectionsTextEl = document.getElementById(
-      "active-collections-text"
-    );
-    const newCollectionBtn = document.getElementById("new-collection-btn");
-
-    const addCardForm = document.getElementById("add-card-form");
-    const cardCollectionSelect = document.getElementById("card-collection");
-    const cardFrontInput = document.getElementById("card-front");
-    const cardBackInput = document.getElementById("card-back");
-
-    const collectionsRef = ref(db, "collections");
-    const activeCollectionsRef = ref(db, "activeCollections");
-    const cardsRef = ref(db, "cards");
-
-    let collections = {};
-    let activeCollections = {};
-
-    function renderCollections() {
-      collectionsListEl.innerHTML = "";
-      cardCollectionSelect.innerHTML = "";
-
-      const ids = Object.keys(collections);
-      if (ids.length === 0) {
-        activeCollectionsTextEl.textContent = "none";
-        return;
-      }
-
-      ids.forEach(id => {
-        const col = collections[id];
-        const name = col.name || "Untitled";
-
-        const pill = document.createElement("button");
-        pill.type = "button";
-        pill.className = "collection-pill";
-        pill.textContent = name;
-
-        const isActive = !!activeCollections[id];
-        if (isActive) {
-          pill.classList.add("active");
-          const tag = document.createElement("span");
-          tag.textContent = "active";
-          pill.appendChild(tag);
-        }
-
-        pill.addEventListener("click", () => {
-          const nowActive = !isActive;
-          update(activeCollectionsRef, { [id]: nowActive });
-        });
-
-        collectionsListEl.appendChild(pill);
-
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = name;
-        cardCollectionSelect.appendChild(opt);
-      });
-
-      const activeIds = Object.keys(activeCollections).filter(
-        id => activeCollections[id]
-      );
-      activeCollectionsTextEl.textContent =
-        activeIds.length === 0 ? "none" : activeIds.join(", ");
-    }
-
-    onValue(collectionsRef, snapshot => {
-      const data = snapshot.val() || {};
-      collections = data;
-      renderCollections();
-    });
-
-    onValue(activeCollectionsRef, snapshot => {
-      const data = snapshot.val() || {};
-      activeCollections = data;
-      renderCollections();
-    });
-
-    newCollectionBtn.addEventListener("click", () => {
-      const name = window.prompt("Collection name");
-      if (!name) return;
-      const newRef = push(collectionsRef);
-      set(newRef, { name });
-    });
-
-    addCardForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const collectionId = cardCollectionSelect.value;
-      const front = cardFrontInput.value.trim();
-      const back = cardBackInput.value.trim();
-      if (!collectionId || !front || !back) return;
-
-      const newCardRef = push(cardsRef);
-      set(newCardRef, {
-        collectionId,
-        front,
-        back,
-        createdAt: Date.now()
-      }).then(() => {
-        cardFrontInput.value = "";
-        cardBackInput.value = "";
-      });
-    });
-  </script>
 </body>
 </html>

@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Cards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #fff;
+    color: #111;
+    padding: 20px;
+  }
+
+  .back-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgb(177,151,252);
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #e5e5e5;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+
+  button {
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: none;
+    background: rgb(177,151,252);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+</style>
+</head>
+
+<body>
+
+<a class="back-btn" href="index.html">◂ Back</a>
+
+<div class="card">
+  <h2>Add a Card</h2>
+
+  <form id="add-card-form">
+    <label>Collection</label>
+    <select id="collection-select"></select>
+
+    <label>Front</label>
+    <input id="front-input" type="text" required>
+
+    <label>Back</label>
+    <input id="back-input" type="text" required>
+
+    <button type="submit">Save Card</button>
+  </form>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, onValue }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
+  authDomain: "flashcards-c5a5d.firebaseapp.com",
+  projectId: "flashcards-c5a5d",
+  storageBucket: "flashcards-c5a5d.firebasestorage.app",
+  messagingSenderId: "543230755849",
+  appId: "1:543230755849:web:32faecba0d923cd51024d8",
+  measurementId: "G-PV1J86WTH9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app,
+ "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+);
+
+const collectionsRef = ref(db, "collections");
+const cardsRef = ref(db, "cards");
+
+const select = document.getElementById("collection-select");
+
+onValue(collectionsRef, snap => {
+  const data = snap.val() || {};
+  select.innerHTML = "";
+  Object.entries(data).forEach(([id, col]) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = col.name;
+    select.appendChild(opt);
+  });
+});
+
+document.getElementById("add-card-form").onsubmit = e => {
+  e.preventDefault();
+
+  const collectionId = select.value;
+  const front = document.getElementById("front-input").value.trim();
+  const back = document.getElementById("back-input").value.trim();
+
+  if (!front || !back) return;
+
+  const newCard = push(cardsRef);
+  set(newCard, {
+    collectionId,
+    front,
+    back,
+    createdAt: Date.now()
+  }).then(() => {
+    document.getElementById("front-input").value = "";
+    document.getElementById("back-input").value = "";
+  });
+};
+</script>
+
+</body>
+</html>
 

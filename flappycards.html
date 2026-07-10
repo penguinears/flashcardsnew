@@ -12,7 +12,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   body {
     margin: 0;
     overflow: hidden;
-    background: #fff;
+    background: #87CEFA; /* blue sky */
     font-family: system-ui, sans-serif;
   }
 
@@ -33,7 +33,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     display: block;
   }
 
-  /* Flashcard popup */
   .flashcard-popup {
     position: absolute;
     top: 50%;
@@ -67,7 +66,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     cursor: pointer;
   }
 
-  /* Death screen */
   .death-screen {
     position: absolute;
     top: 0;
@@ -104,7 +102,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue }
+import { getDatabase, ref, onValue, set }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /* DEVICE ID */
@@ -151,6 +149,19 @@ function loadCards() {
   gameFlashcards = cards.filter(c => activeIds.includes(c.collectionId));
 }
 
+/* XP system */
+let meta = { xp: 0, frozen: false, usedFreezes: 0 };
+const metaRef = ref(db, "meta");
+
+onValue(metaRef, snap => {
+  meta = snap.val() || meta;
+});
+
+function addXP(amount) {
+  meta.xp += amount;
+  set(metaRef, meta);
+}
+
 /* GAME SETUP */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -172,18 +183,20 @@ let bird = {
   vel: 0
 };
 
-let gravity = 0.4;
-let jump = -7;
+/* Easier physics */
+let gravity = 0.32;
+let jump = -8;
+let pipeGap = 210;
+let pipeSpeed = 2.4;
 
 let pipes = [];
-let pipeGap = 180;
-let pipeSpeed = 3;
-
 let awaitingAnswer = false;
 let currentCard = null;
+let gameStarted = false;
 
 function spawnPipe() {
   let topHeight = Math.random() * (canvas.height - pipeGap - 200) + 50;
+
   pipes.push({
     x: canvas.width,
     top: topHeight,
@@ -191,7 +204,7 @@ function spawnPipe() {
   });
 }
 
-setInterval(spawnPipe, 2000);
+setInterval(spawnPipe, 2200);
 
 /* Flashcard popup */
 const flashcardBox = document.getElementById("flashcard");
@@ -212,6 +225,7 @@ function showFlashcard(card) {
 choiceBtn.onclick = () => {
   awaitingAnswer = false;
   flashcardBox.style.display = "none";
+  addXP(10); // XP reward
 };
 
 /* DIE */
@@ -223,19 +237,29 @@ function die() {
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  /* Bird physics */
-  bird.vel += gravity;
-  bird.y += bird.vel;
+  if (gameStarted && !awaitingAnswer) {
+    bird.vel += gravity;
+    bird.y += bird.vel;
+  }
 
   ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
 
   pipes.forEach(pipe => {
     pipe.x -= pipeSpeed;
 
-    ctx.drawImage(pipeImg, pipe.x, pipe.top - pipeImg.height, 80, pipeImg.height);
+    /* Flip top pipe upside-down */
+    ctx.save();
+    ctx.translate(pipe.x + 80, pipe.top);
+    ctx.scale(1, -1);
+    ctx.drawImage(pipeImg, -80, 0, 80, pipeImg.height);
+    ctx.restore();
+
+    /* Bottom pipe normal */
     ctx.drawImage(pipeImg, pipe.x, pipe.bottom, 80, pipeImg.height);
 
+    /* Collision */
     if (
+      gameStarted &&
       bird.x + bird.w > pipe.x &&
       bird.x < pipe.x + 80 &&
       (bird.y < pipe.top || bird.y + bird.h > pipe.bottom)
@@ -243,7 +267,13 @@ function loop() {
       die();
     }
 
-    if (!awaitingAnswer && pipe.x + 80 < bird.x && pipe.x + 80 > bird.x - pipeSpeed) {
+    /* Flashcard trigger */
+    if (
+      gameStarted &&
+      !awaitingAnswer &&
+      pipe.x + 80 < bird.x &&
+      pipe.x + 80 > bird.x - pipeSpeed
+    ) {
       if (gameFlashcards.length > 0) {
         let card = gameFlashcards[Math.floor(Math.random() * gameFlashcards.length)];
         showFlashcard(card);
@@ -257,11 +287,13 @@ function loop() {
 loop();
 
 /* Controls */
-window.addEventListener("keydown", () => {
+window.addEventListener("mousedown", () => {
+  if (!gameStarted) gameStarted = true;
   if (!awaitingAnswer) bird.vel = jump;
 });
 
-window.addEventListener("mousedown", () => {
+window.addEventListener("keydown", () => {
+  if (!gameStarted) gameStarted = true;
   if (!awaitingAnswer) bird.vel = jump;
 });
 </script>

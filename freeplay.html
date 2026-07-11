@@ -267,7 +267,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue }
+import { getDatabase, ref, onValue, set }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /* DEVICE ID */
@@ -291,6 +291,17 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app,
  "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
 );
+
+/* XP META */
+let meta = { xp: 0 };
+onValue(ref(db, "meta"), snap => {
+  meta = snap.val() || meta;
+});
+
+function addXP(amount) {
+  meta.xp += amount;
+  set(ref(db, "meta"), meta);
+}
 
 /* DOM */
 const cardEl = document.getElementById("card");
@@ -401,6 +412,11 @@ function updateCardNumber() {
 function setConfidence(level) {
   const card = studyCards[currentIndex];
   confidence[card.id] = level;
+
+  /* XP SYSTEM */
+  if (level === 0) addXP(5);   // red
+  if (level === 1) addXP(5);   // yellow
+  if (level === 2) addXP(10);  // green
 
   const answered = Object.keys(confidence).length;
   const total = studyCards.length;

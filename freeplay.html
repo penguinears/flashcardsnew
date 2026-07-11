@@ -1,1 +1,342 @@
-<h1>Under development</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flashcards Freeplay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f4edff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 480px;
+    padding: 16px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .top-bar button {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: rgb(177,151,252);
+    color: #fff;
+  }
+
+  .summary-text {
+    font-size: 0.85rem;
+    color: #555;
+  }
+
+  .card-shell {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    width: 320px;
+    height: 200px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+
+  .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+    background: #e7dbff;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 16px;
+    font-size: 1.6rem;
+  }
+
+  .nav-btn {
+    cursor: pointer;
+    color: rgb(177,151,252);
+  }
+
+  .confidence-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .conf-btn {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .conf-btn span {
+    font-size: 0.85rem;
+  }
+
+  .conf-low i {
+    color: rgb(212, 23, 38);
+  }
+
+  .conf-mid i {
+    color: rgb(255, 212, 59);
+  }
+
+  .conf-high i {
+    color: rgb(99, 230, 190);
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <button id="mode-btn">Mode: All</button>
+    <div class="summary-text" id="summary">Confidence: -</div>
+  </div>
+
+  <div class="card-shell">
+    <div class="card" id="card">
+      <div class="card-inner">
+        <div class="card-face card-front" id="card-front">Loading…</div>
+        <div class="card-face card-back" id="card-back">Answer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <div class="nav-btn" id="prev-btn">
+      <i class="fa-solid fa-arrow-left"></i>
+    </div>
+    <div class="nav-btn" id="next-btn">
+      <i class="fa-solid fa-arrow-right"></i>
+    </div>
+  </div>
+
+  <div class="confidence-row">
+    <button class="conf-btn conf-low" id="conf-low">
+      <i class="fa-solid fa-thumbs-down"></i>
+      <span>Don’t know</span>
+    </button>
+    <button class="conf-btn conf-mid" id="conf-mid">
+      <i class="fa-solid fa-hand"></i>
+      <span>Alright</span>
+    </button>
+    <button class="conf-btn conf-high" id="conf-high">
+      <i class="fa-solid fa-thumbs-up"></i>
+      <span>Good</span>
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* DEVICE ID */
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = "dev_" + Math.random().toString(36).substring(2);
+  localStorage.setItem("deviceId", deviceId);
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAa2F5JvKW39sa-6dZct_5AA_IkK9_qWuQ",
+  authDomain: "flashcards-c5a5d.firebaseapp.com",
+  projectId: "flashcards-c5a5d",
+  storageBucket: "flashcards-c5a5d.firebasestorage.app",
+  messagingSenderId: "543230755849",
+  appId: "1:543230755849:web:32faecba0d923cd51024d8",
+  measurementId: "G-PV1J86WTH9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app,
+ "https://flashcards-c5a5d-default-rtdb.europe-west1.firebasedatabase.app/"
+);
+
+/* DOM */
+const cardEl = document.getElementById("card");
+const frontEl = document.getElementById("card-front");
+const backEl = document.getElementById("card-back");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
+const confLow = document.getElementById("conf-low");
+const confMid = document.getElementById("conf-mid");
+const confHigh = document.getElementById("conf-high");
+const summaryEl = document.getElementById("summary");
+const modeBtn = document.getElementById("mode-btn");
+
+/* Data */
+let activeCollections = {};
+let cards = [];
+let studyCards = [];
+let currentIndex = 0;
+let modeWeakOnly = false;
+
+/* Confidence map: cardId -> 0/1/2 */
+let confidence = {}; // 0 = low, 1 = mid, 2 = high
+
+onValue(ref(db, "activeCollections/" + deviceId), snap => {
+  activeCollections = snap.val() || {};
+  buildStudyCards();
+});
+
+onValue(ref(db, "cards/" + deviceId), snap => {
+  const all = snap.val() || {};
+  cards = Object.values(all);
+  buildStudyCards();
+});
+
+function buildStudyCards() {
+  const activeIds = Object.keys(activeCollections).filter(id => activeCollections[id]);
+  const filtered = cards.filter(c => activeIds.includes(c.collectionId));
+  studyCards = filtered;
+  currentIndex = 0;
+  renderCard();
+  updateSummary();
+}
+
+function getCurrentList() {
+  if (!modeWeakOnly) return studyCards;
+  return studyCards.filter(c => confidence[c.id] === 0 || confidence[c.id] === 1);
+}
+
+function renderCard() {
+  const list = getCurrentList();
+  if (list.length === 0) {
+    frontEl.textContent = "No cards in this mode.";
+    backEl.textContent = "";
+    cardEl.classList.remove("flipped");
+    return;
+  }
+  if (currentIndex < 0) currentIndex = list.length - 1;
+  if (currentIndex >= list.length) currentIndex = 0;
+
+  const card = list[currentIndex];
+  frontEl.textContent = card.front || "No question";
+  backEl.textContent = card.back || "No answer";
+  cardEl.classList.remove("flipped");
+}
+
+cardEl.addEventListener("click", () => {
+  cardEl.classList.toggle("flipped");
+});
+
+prevBtn.addEventListener("click", () => {
+  currentIndex--;
+  renderCard();
+});
+
+nextBtn.addEventListener("click", () => {
+  currentIndex++;
+  renderCard();
+});
+
+function setConfidence(level) {
+  const list = getCurrentList();
+  if (list.length === 0) return;
+  const card = list[currentIndex];
+  confidence[card.id] = level;
+  updateSummary();
+}
+
+confLow.addEventListener("click", () => setConfidence(0));
+confMid.addEventListener("click", () => setConfidence(1));
+confHigh.addEventListener("click", () => setConfidence(2));
+
+function updateSummary() {
+  const list = studyCards;
+  if (list.length === 0) {
+    summaryEl.textContent = "Confidence: -";
+    return;
+  }
+  let total = 0;
+  let counted = 0;
+  let lowOrMid = 0;
+
+  list.forEach(c => {
+    const val = confidence[c.id];
+    if (val !== undefined) {
+      total += val;
+      counted++;
+      if (val === 0 || val === 1) lowOrMid++;
+    }
+  });
+
+  if (counted === 0) {
+    summaryEl.textContent = "Confidence: not rated yet";
+  } else {
+    const avg = (total / counted).toFixed(2);
+    summaryEl.textContent =
+      `Confidence: avg ${avg} / 2 • weaker: ${lowOrMid}/${counted}`;
+  }
+}
+
+modeBtn.addEventListener("click", () => {
+  modeWeakOnly = !modeWeakOnly;
+  modeBtn.textContent = modeWeakOnly ? "Mode: Weak" : "Mode: All";
+  currentIndex = 0;
+  renderCard();
+});
+</script>
+</body>
+</html>

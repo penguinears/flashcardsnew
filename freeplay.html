@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Flashcards Freeplay</title>
+<title>Freeplay Flashcards</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet"
@@ -25,6 +25,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     padding: 16px;
   }
 
+  /* TOP BAR */
   .top-bar {
     display: flex;
     justify-content: space-between;
@@ -47,10 +48,33 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     color: #555;
   }
 
-  .card-shell {
+  .timer {
+    font-size: 0.85rem;
+    color: #333;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 12px;
     display: flex;
-    justify-content: center;
-    margin-bottom: 16px;
+  }
+
+  .prog-red { background: rgb(212, 23, 38); }
+  .prog-yellow { background: rgb(255, 212, 59); }
+  .prog-green { background: rgb(99, 230, 190); }
+
+  /* CARD + SLIDE ANIMATION */
+  .card-shell {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 20px;
   }
 
   .card {
@@ -58,6 +82,26 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     height: 200px;
     perspective: 1000px;
     cursor: pointer;
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    transition: transform 0.45s ease, opacity 0.45s ease;
+  }
+
+  .slide-out-left {
+    transform: translateX(-150%) rotateZ(-5deg);
+    opacity: 0;
+  }
+
+  .slide-out-right {
+    transform: translateX(150%) rotateZ(5deg);
+    opacity: 0;
+  }
+
+  .slide-in {
+    transform: translateX(-50%);
+    opacity: 1;
   }
 
   .card-inner {
@@ -93,23 +137,26 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     background: #e7dbff;
   }
 
-  .nav-row {
+  /* ARROWS + CONFIDENCE BUTTONS */
+  .bottom-row {
     display: flex;
-    justify-content: center;
-    gap: 32px;
-    margin-bottom: 16px;
-    font-size: 1.6rem;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .nav-btn {
+    font-size: 1.8rem;
     cursor: pointer;
     color: rgb(177,151,252);
+    width: 50px;
+    text-align: center;
   }
 
   .confidence-row {
     display: flex;
-    justify-content: space-between;
     gap: 8px;
+    flex: 1;
+    justify-content: center;
   }
 
   .conf-btn {
@@ -127,33 +174,64 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     font-size: 0.9rem;
   }
 
-  .conf-btn span {
-    font-size: 0.85rem;
+  .conf-low i { color: rgb(212, 23, 38); }
+  .conf-mid i { color: rgb(255, 212, 59); }
+  .conf-high i { color: rgb(99, 230, 190); }
+
+  /* COMPLETION SCREEN */
+  .completion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    padding: 20px;
+    display: none;
+    z-index: 50;
+    text-align: center;
   }
 
-  .conf-low i {
-    color: rgb(212, 23, 38);
+  .completion h2 {
+    margin-bottom: 16px;
   }
 
-  .conf-mid i {
-    color: rgb(255, 212, 59);
+  .completion button {
+    margin-top: 12px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: rgb(177,151,252);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
   }
 
-  .conf-high i {
-    color: rgb(99, 230, 190);
+  .conf-bar {
+    width: 100%;
+    height: 14px;
+    background: #ddd;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 12px;
+    display: flex;
   }
 </style>
 </head>
 
 <body>
 <div class="wrap">
+
   <div class="top-bar">
     <button id="mode-btn">Mode: All</button>
+    <div class="timer" id="timer">0:00</div>
     <div class="summary-text" id="summary">Confidence: -</div>
   </div>
 
+  <div class="progress-bar" id="progress"></div>
+
   <div class="card-shell">
-    <div class="card" id="card">
+    <div class="card slide-in" id="card">
       <div class="card-inner">
         <div class="card-face card-front" id="card-front">Loading…</div>
         <div class="card-face card-back" id="card-back">Answer</div>
@@ -161,29 +239,39 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     </div>
   </div>
 
-  <div class="nav-row">
+  <div class="bottom-row">
     <div class="nav-btn" id="prev-btn">
       <i class="fa-solid fa-arrow-left"></i>
     </div>
+
+    <div class="confidence-row">
+      <button class="conf-btn conf-low" id="conf-low">
+        <i class="fa-solid fa-thumbs-down"></i>
+      </button>
+      <button class="conf-btn conf-mid" id="conf-mid">
+        <i class="fa-solid fa-hand"></i>
+      </button>
+      <button class="conf-btn conf-high" id="conf-high">
+        <i class="fa-solid fa-thumbs-up"></i>
+      </button>
+    </div>
+
     <div class="nav-btn" id="next-btn">
       <i class="fa-solid fa-arrow-right"></i>
     </div>
   </div>
 
-  <div class="confidence-row">
-    <button class="conf-btn conf-low" id="conf-low">
-      <i class="fa-solid fa-thumbs-down"></i>
-      <span>Don’t know</span>
-    </button>
-    <button class="conf-btn conf-mid" id="conf-mid">
-      <i class="fa-solid fa-hand"></i>
-      <span>Alright</span>
-    </button>
-    <button class="conf-btn conf-high" id="conf-high">
-      <i class="fa-solid fa-thumbs-up"></i>
-      <span>Good</span>
-    </button>
+  <!-- COMPLETION SCREEN -->
+  <div class="completion" id="completion">
+    <h2>Session Complete!</h2>
+    <p id="comp-stats"></p>
+
+    <div class="conf-bar" id="conf-bar"></div>
+
+    <button id="redo-weak">Redo Weak Cards</button>
+    <button id="redo-all">Restart Full Session</button>
   </div>
+
 </div>
 
 <script type="module">
@@ -224,6 +312,13 @@ const confMid = document.getElementById("conf-mid");
 const confHigh = document.getElementById("conf-high");
 const summaryEl = document.getElementById("summary");
 const modeBtn = document.getElementById("mode-btn");
+const progressBar = document.getElementById("progress");
+const timerEl = document.getElementById("timer");
+const completionEl = document.getElementById("completion");
+const compStatsEl = document.getElementById("comp-stats");
+const confBarEl = document.getElementById("conf-bar");
+const redoWeakBtn = document.getElementById("redo-weak");
+const redoAllBtn = document.getElementById("redo-all");
 
 /* Data */
 let activeCollections = {};
@@ -233,7 +328,16 @@ let currentIndex = 0;
 let modeWeakOnly = false;
 
 /* Confidence map: cardId -> 0/1/2 */
-let confidence = {}; // 0 = low, 1 = mid, 2 = high
+let confidence = {};
+
+/* Timer */
+let seconds = 0;
+setInterval(() => {
+  seconds++;
+  let m = Math.floor(seconds / 60);
+  let s = seconds % 60;
+  timerEl.textContent = `${m}:${s.toString().padStart(2,"0")}`;
+}, 1000);
 
 onValue(ref(db, "activeCollections/" + deviceId), snap => {
   activeCollections = snap.val() || {};
@@ -248,24 +352,37 @@ onValue(ref(db, "cards/" + deviceId), snap => {
 
 function buildStudyCards() {
   const activeIds = Object.keys(activeCollections).filter(id => activeCollections[id]);
-  const filtered = cards.filter(c => activeIds.includes(c.collectionId));
-  studyCards = filtered;
+  studyCards = cards.filter(c => activeIds.includes(c.collectionId));
   currentIndex = 0;
   renderCard();
   updateSummary();
+  updateProgress();
 }
 
 function getCurrentList() {
   if (!modeWeakOnly) return studyCards;
-  return studyCards.filter(c => confidence[c.id] === 0 || confidence[c.id] === 1);
+  return studyCards.filter(c => confidence[c.id] <= 1);
+}
+
+function animateSlide(direction) {
+  cardEl.classList.remove("slide-in");
+  cardEl.classList.remove("slide-out-left");
+  cardEl.classList.remove("slide-out-right");
+
+  cardEl.classList.add(direction === "left" ? "slide-out-left" : "slide-out-right");
+
+  setTimeout(() => {
+    renderCard();
+    cardEl.classList.remove("slide-out-left");
+    cardEl.classList.remove("slide-out-right");
+    cardEl.classList.add("slide-in");
+  }, 450);
 }
 
 function renderCard() {
   const list = getCurrentList();
   if (list.length === 0) {
-    frontEl.textContent = "No cards in this mode.";
-    backEl.textContent = "";
-    cardEl.classList.remove("flipped");
+    showCompletion();
     return;
   }
   if (currentIndex < 0) currentIndex = list.length - 1;
@@ -283,12 +400,12 @@ cardEl.addEventListener("click", () => {
 
 prevBtn.addEventListener("click", () => {
   currentIndex--;
-  renderCard();
+  animateSlide("left");
 });
 
 nextBtn.addEventListener("click", () => {
   currentIndex++;
-  renderCard();
+  animateSlide("right");
 });
 
 function setConfidence(level) {
@@ -297,6 +414,10 @@ function setConfidence(level) {
   const card = list[currentIndex];
   confidence[card.id] = level;
   updateSummary();
+  updateProgress();
+
+  currentIndex++;
+  animateSlide("right");
 }
 
 confLow.addEventListener("click", () => setConfidence(0));
@@ -311,29 +432,125 @@ function updateSummary() {
   }
   let total = 0;
   let counted = 0;
-  let lowOrMid = 0;
+  let weak = 0;
 
   list.forEach(c => {
     const val = confidence[c.id];
     if (val !== undefined) {
       total += val;
       counted++;
-      if (val === 0 || val === 1) lowOrMid++;
+      if (val <= 1) weak++;
     }
   });
 
   if (counted === 0) {
-    summaryEl.textContent = "Confidence: not rated yet";
+    summaryEl.textContent = "Confidence: not rated";
   } else {
     const avg = (total / counted).toFixed(2);
     summaryEl.textContent =
-      `Confidence: avg ${avg} / 2 • weaker: ${lowOrMid}/${counted}`;
+      `Confidence avg: ${avg}/2 • Weak: ${weak}/${counted}`;
+  }
+}
+
+function updateProgress() {
+  const list = studyCards;
+  let red = 0, yellow = 0, green = 0;
+
+  list.forEach(c => {
+    const val = confidence[c.id];
+    if (val === 0) red++;
+    else if (val === 1) yellow++;
+    else if (val === 2) green++;
+  });
+
+  progressBar.innerHTML = "";
+
+  const total = list.length || 1;
+
+  if (red > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-red";
+    seg.style.width = `${(red/total)*100}%`;
+    progressBar.appendChild(seg);
+  }
+
+  if (yellow > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-yellow";
+    seg.style.width = `${(yellow/total)*100}%`;
+    progressBar.appendChild(seg);
+  }
+
+  if (green > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-green";
+    seg.style.width = `${(green/total)*100}%`;
+    progressBar.appendChild(seg);
   }
 }
 
 modeBtn.addEventListener("click", () => {
   modeWeakOnly = !modeWeakOnly;
   modeBtn.textContent = modeWeakOnly ? "Mode: Weak" : "Mode: All";
+  currentIndex = 0;
+  renderCard();
+});
+
+/* COMPLETION SCREEN */
+function showCompletion() {
+  const list = studyCards;
+  let red = 0, yellow = 0, green = 0;
+
+  list.forEach(c => {
+    const val = confidence[c.id];
+    if (val === 0) red++;
+    else if (val === 1) yellow++;
+    else if (val === 2) green++;
+  });
+
+  compStatsEl.innerHTML =
+    `Total: ${list.length}<br>
+     Don’t know: ${red}<br>
+     Alright: ${yellow}<br>
+     Good: ${green}`;
+
+  confBarEl.innerHTML = "";
+  const total = list.length || 1;
+
+  if (red > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-red";
+    seg.style.width = `${(red/total)*100}%`;
+    confBarEl.appendChild(seg);
+  }
+
+  if (yellow > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-yellow";
+    seg.style.width = `${(yellow/total)*100}%`;
+    confBarEl.appendChild(seg);
+  }
+
+  if (green > 0) {
+    const seg = document.createElement("div");
+    seg.className = "prog-green";
+    seg.style.width = `${(green/total)*100}%`;
+    confBarEl.appendChild(seg);
+  }
+
+  completionEl.style.display = "block";
+}
+
+redoWeakBtn.addEventListener("click", () => {
+  modeWeakOnly = true;
+  completionEl.style.display = "none";
+  currentIndex = 0;
+  renderCard();
+});
+
+redoAllBtn.addEventListener("click", () => {
+  modeWeakOnly = false;
+  completionEl.style.display = "none";
   currentIndex = 0;
   renderCard();
 });

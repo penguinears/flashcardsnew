@@ -12,8 +12,10 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   body {
     margin: 0;
     overflow: hidden;
-    background: #87CEFA; /* blue sky */
+    background: #87CEFA;
     font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
   }
 
   .back-btn {
@@ -31,7 +33,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
   canvas {
     display: block;
-    margin: 0 auto;
     background: #87CEFA;
   }
 
@@ -39,7 +40,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 320px;
+    width: 340px;
     transform: translate(-50%, -50%);
     background: #f4edff;
     border: 2px solid rgba(177,151,252,0.6);
@@ -50,16 +51,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     display: none;
   }
 
-  .flashcard-popup h2 {
-    margin-bottom: 14px;
-    font-size: 1.2rem;
+  .flash-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #aaa;
+    font-size: 1rem;
+    margin-top: 10px;
   }
 
-  .choice-btn {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
+  .flash-submit {
+    margin-top: 12px;
     padding: 10px;
+    width: 100%;
     border-radius: 10px;
     border: none;
     background: rgb(177,151,252);
@@ -107,8 +111,9 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <canvas id="game"></canvas>
 
 <div class="flashcard-popup" id="flashcard">
-  <h2 id="flashcard-question">Question</h2>
-  <button class="choice-btn" id="choice-btn">Answer</button>
+  <h2 id="flashcard-question">Type the answer:</h2>
+  <input class="flash-input" id="flash-input" placeholder="Your answer...">
+  <button class="flash-submit" id="flash-submit">Submit</button>
 </div>
 
 <div class="death-screen" id="death">
@@ -165,7 +170,7 @@ function loadCards() {
 }
 
 /* XP system */
-let meta = { xp: 0, frozen: false, usedFreezes: 0 };
+let meta = { xp: 0 };
 const metaRef = ref(db, "meta");
 
 onValue(metaRef, snap => {
@@ -181,7 +186,7 @@ function addXP(amount) {
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 420;   /* fixed game size */
+canvas.width = 420;
 canvas.height = 700;
 
 let birdImg = new Image();
@@ -198,11 +203,11 @@ let bird = {
   vel: 0
 };
 
-/* Easier physics */
-let gravity = 0.32;
-let jump = -8;
-let pipeGap = 210;
-let pipeSpeed = 2.4;
+/* SUPER EASY PHYSICS */
+let gravity = 0.18;
+let jump = -10;
+let pipeGap = 300;
+let pipeSpeed = 1.4;
 
 let pipes = [];
 let awaitingAnswer = false;
@@ -211,7 +216,7 @@ let gameStarted = false;
 let score = 0;
 
 function spawnPipe() {
-  let topHeight = Math.random() * (canvas.height - pipeGap - 200) + 50;
+  let topHeight = Math.random() * (canvas.height - pipeGap - 300) + 100;
 
   pipes.push({
     x: canvas.width,
@@ -221,12 +226,13 @@ function spawnPipe() {
   });
 }
 
-setInterval(spawnPipe, 2200);
+setInterval(spawnPipe, 3000);
 
 /* Flashcard popup */
 const flashcardBox = document.getElementById("flashcard");
-const flashcardQuestion = document.getElementById("flashcard-question");
-const choiceBtn = document.getElementById("choice-btn");
+const flashInput = document.getElementById("flash-input");
+const flashSubmit = document.getElementById("flash-submit");
+const flashQuestion = document.getElementById("flashcard-question");
 
 /* Death screen */
 const deathScreen = document.getElementById("death");
@@ -235,14 +241,22 @@ function showFlashcard(card) {
   awaitingAnswer = true;
   currentCard = card;
 
-  flashcardQuestion.textContent = card.front;
+  flashQuestion.textContent = card.front;
+  flashInput.value = "";
   flashcardBox.style.display = "block";
 }
 
-choiceBtn.onclick = () => {
-  awaitingAnswer = false;
-  flashcardBox.style.display = "none";
-  addXP(10); // XP reward
+flashSubmit.onclick = () => {
+  let typed = flashInput.value.trim().toLowerCase();
+  let correct = currentCard.back.trim().toLowerCase();
+
+  if (typed === correct) {
+    awaitingAnswer = false;
+    flashcardBox.style.display = "none";
+    addXP(10);
+  } else {
+    die();
+  }
 };
 
 /* DIE */

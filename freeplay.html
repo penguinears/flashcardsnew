@@ -33,16 +33,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     margin-bottom: 12px;
   }
 
-  .top-bar button {
-    border: none;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    background: rgb(177,151,252);
-    color: #fff;
-  }
-
   .timer {
     font-size: 0.85rem;
     color: #333;
@@ -180,33 +170,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   .conf-mid i { color: rgb(255, 212, 59); }
   .conf-high i { color: rgb(99, 230, 190); }
 
-  /* COMPLETION SCREEN */
-  .completion {
-    position: absolute;
-    top: 0;
-    left: 0;
+  /* MISTAKES BUTTON */
+  .mistakes-btn {
+    margin-top: 16px;
     width: 100%;
-    height: 100%;
-    background: #ffffff;
-    padding: 20px;
-    display: none;
-    z-index: 50;
-    text-align: center;
-  }
-
-  .completion h2 {
-    margin-bottom: 16px;
-  }
-
-  .completion button {
-    margin-top: 12px;
-    padding: 10px 16px;
+    padding: 12px;
     border-radius: 12px;
     border: none;
     background: rgb(177,151,252);
     color: #fff;
-    cursor: pointer;
     font-size: 1rem;
+    cursor: pointer;
   }
 </style>
 </head>
@@ -215,7 +189,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <div class="wrap">
 
   <div class="top-bar">
-    <button id="finish-btn">Finish</button>
     <div class="timer" id="timer">0:00</div>
     <div class="card-count" id="card-count">Card 1</div>
   </div>
@@ -255,13 +228,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     </div>
   </div>
 
-  <!-- COMPLETION SCREEN -->
-  <div class="completion" id="completion">
-    <h2>Session Summary</h2>
-    <p id="comp-stats"></p>
-    <button id="redo-mistakes">Redo Mistakes</button>
-    <button id="restart-all">Restart All</button>
-  </div>
+  <button class="mistakes-btn" id="redo-mistakes">Redo Mistakes</button>
 
 </div>
 
@@ -315,11 +282,7 @@ const confHigh = document.getElementById("conf-high");
 const progressFill = document.getElementById("progress-fill");
 const timerEl = document.getElementById("timer");
 const cardCountEl = document.getElementById("card-count");
-const finishBtn = document.getElementById("finish-btn");
-const completionEl = document.getElementById("completion");
-const compStatsEl = document.getElementById("comp-stats");
 const redoMistakesBtn = document.getElementById("redo-mistakes");
-const restartAllBtn = document.getElementById("restart-all");
 
 /* Data */
 let activeCollections = {};
@@ -418,6 +381,7 @@ function setConfidence(level) {
   if (level === 1) addXP(5);   // yellow
   if (level === 2) addXP(10);  // green
 
+  /* PROGRESS BAR */
   const answered = Object.keys(confidence).length;
   const total = studyCards.length;
   const percent = (answered / total) * 100;
@@ -432,42 +396,9 @@ confLow.addEventListener("click", () => setConfidence(0));
 confMid.addEventListener("click", () => setConfidence(1));
 confHigh.addEventListener("click", () => setConfidence(2));
 
-finishBtn.addEventListener("click", () => {
-  showCompletion();
-});
-
-function showCompletion() {
-  let red = 0, yellow = 0, green = 0;
-
-  studyCards.forEach(c => {
-    const val = confidence[c.id];
-    if (val === 0) red++;
-    else if (val === 1) yellow++;
-    else if (val === 2) green++;
-  });
-
-  compStatsEl.innerHTML =
-    `Total cards: ${studyCards.length}<br>
-     Don’t know: ${red}<br>
-     Alright: ${yellow}<br>
-     Good: ${green}`;
-
-  completionEl.style.display = "block";
-}
-
 redoMistakesBtn.addEventListener("click", () => {
   studyCards = studyCards.filter(c => confidence[c.id] === 0);
   currentIndex = 0;
-  completionEl.style.display = "none";
-  renderCard();
-  updateCardNumber();
-  progressFill.style.width = "0%";
-  confidence = {};
-});
-
-restartAllBtn.addEventListener("click", () => {
-  currentIndex = 0;
-  completionEl.style.display = "none";
   renderCard();
   updateCardNumber();
   progressFill.style.width = "0%";
